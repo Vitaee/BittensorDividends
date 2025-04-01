@@ -1,4 +1,4 @@
-import json, bittensor
+import json, bittensor, asyncio
 from typing import Dict, Optional
 from bittensor.core.async_subtensor import AsyncSubtensor
 from src.core.config import settings
@@ -14,13 +14,35 @@ class BitensorService:
         logger.info(f"Initializing BitensorService for network: {settings.BITTENSOR_NETWORK}")
         self._subtensor = None
         self._wallet = None
+        self._loop = None
         
     async def _get_subtensor(self):
         """Get or initialize the async subtensor"""
+        current_loop = asyncio.get_running_loop()
+        
+        # If subtensor exists but is bound to a different loop, reset it
+        if self._subtensor is not None and self._loop is not current_loop:
+            logger.info("Event loop changed, resetting AsyncSubtensor instance")
+            await self.reset_connections()
+            
         if self._subtensor is None:
             logger.info("Creating new AsyncSubtensor instance")
             self._subtensor = AsyncSubtensor() #network=settings.BITTENSOR_NETWORK)
+            self._loop = current_loop
+            
         return self._subtensor
+    
+    async def reset_connections(self):
+        """Reset subtensor connection when event loop changes"""
+        if self._subtensor:
+            try:
+                logger.info("Closing existing AsyncSubtensor connection")
+                await self._subtensor.close()
+            except Exception as e:
+                logger.warning(f"Error closing subtensor connection: {str(e)}")
+            finally:
+                self._subtensor = None
+                self._loop = None
     
     async def _get_wallet(self):
         """Get or initialize the bittensor wallet"""
@@ -213,10 +235,7 @@ class BitensorService:
     
     async def close(self):
         """Close the subtensor connection"""
-        if self._subtensor:
-            logger.info("Closing AsyncSubtensor connection")
-            await self._subtensor.close()
-            self._subtensor = None
+        await self.reset_connections()
 
 
 # Create a singleton instance
