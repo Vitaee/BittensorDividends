@@ -9,7 +9,7 @@ async def lifespan(app: FastAPI):
     Lifespan context manager for FastAPI application.
     Handles startup and shutdown events for database, cache, and blockchain connections.
     """
-    pass
+    yield 
 
 
 app = FastAPI(
@@ -19,7 +19,7 @@ app = FastAPI(
     lifespan=lifespan
 )
 
-# Configure CORS
+# CORS
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],  # In production, restrict this to specific origins
