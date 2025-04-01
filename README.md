@@ -36,9 +36,17 @@ requirements.txt          # Python dependencies
 - **Celery**: Background processing for sentiment analysis and staking
 - **PostgreSQL**: Persistent storage for transaction history
 - **AsyncSubtensor**: Asynchronous blockchain interactions
+- **Docker**: Container orchestration
+
+
+
+### Environment Variables
+
+Create a `.env` file with your credentials defined in `.env.example`
 
 
 ### Running the Application
+
 First, create a venv: `python -m venv my-env`
 
 Then install the dependencies: `pip install -r requirements.txt`
@@ -51,3 +59,31 @@ and,
 ```bash
 celery -A src.celery_worker.celery_app worker --loglevel=info --pool=threads
 ```
+
+
+## Running pytest
+```bash
+# Run tests
+pytest -s src/tests/test_divisends_api.py
+```
+
+## API Documentation
+
+Interactive API documentation is available at:
+- Swagger UI: http://localhost:8000/docs
+- ReDoc: http://localhost:8000/redoc
+
+
+## API Endpoints
+
+### GET /api/v1/tao_dividends
+
+Query Tao dividends from the Bittensor blockchain.
+
+**Parameters:**
+- `netuid` (optional): Subnet ID
+- `hotkey` (optional): Account hotkey
+- `trade` (optional, default: false): Whether to trigger sentiment analysis and auto-staking
+
+**Authentication:**
+- API Key `X-API-Key` header, if you don't now api key request from developer. ( canilguu@gmail.com )

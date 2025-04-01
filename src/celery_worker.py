@@ -23,10 +23,11 @@ def stake_based_on_sentiment(netuid: int, hotkey: str):
     analyze sentiment and stake/unstake TAO.
     """
     logger.info(f"Starting sentiment analysis task for netuid: {netuid}, hotkey: {hotkey}")
-    print(f"Starting sentiment analysis task for netuid: {netuid}, hotkey: {hotkey}")
     
     async def _process():
         try:
+            await bittensor_service.reset_connections()
+            
             # Get tweets about this subnet
             logger.info(f"Retrieving tweets for netuid: {netuid}")
             tweets = await sentiment_service.get_tweets(netuid)
@@ -56,10 +57,10 @@ def stake_based_on_sentiment(netuid: int, hotkey: str):
             # Stake or unstake
             tx_hash = None
 
-            if stake_amount > 0:
+            if stake_amount > 0 and stake_amount != 0:
                 logger.info(f"Positive sentiment ({sentiment_score}), staking {stake_amount} TAO")
                 tx_hash = await bittensor_service.stake(abs(stake_amount), netuid, hotkey)
-            elif stake_amount < 0:
+            elif stake_amount < 0 and stake_amount != 0:
                 logger.info(f"Negative sentiment ({sentiment_score}), unstaking {abs(stake_amount)} TAO")
                 tx_hash = await bittensor_service.unstake(abs(stake_amount), netuid, hotkey)
             else:
@@ -113,4 +114,10 @@ def stake_based_on_sentiment(netuid: int, hotkey: str):
             }
     
     
-    asyncio.run(_process())
+    loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(loop)
+    
+    try:
+        return loop.run_until_complete(_process())
+    finally:
+        loop.close()

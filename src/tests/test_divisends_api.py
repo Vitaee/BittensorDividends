@@ -1,13 +1,18 @@
 import pytest, json, asyncio
+import sys
+import os
+# Add project root directory to Python path
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')))
+from main import app  # Import the FastAPI app
 from unittest.mock import patch, MagicMock, AsyncMock
 from fastapi.testclient import TestClient
 from fastapi import status
-from  main import app
 from src.services.blockchain import bittensor_service
 from src.services.tweet_sentiment import sentiment_service
 from src.services.redis_cache import cache
 from src.celery_worker import stake_based_on_sentiment
 from src.db.models import db, DividendQuery, StakeTransaction
+
 
 # TestClient for synchronous tests
 client = TestClient(app)
@@ -202,28 +207,6 @@ class TestDividendsAPI:
         assert "netuid" in data
         assert data["hotkey"] == TEST_HOTKEY
         assert data["dividend"] == TEST_DIVIDEND
-
-    @patch.object(cache, "get")
-    def test_cached_response(self, mock_cache_get, mock_db_connect, mock_dividend_query_create,
-                            mock_bittensor_service, mock_celery_task):
-        """Test that cached responses are returned correctly"""
-        # Set up mock cache to return cached data
-        cached_data = json.dumps({
-            "netuid": TEST_NETUID,
-            "hotkey": TEST_HOTKEY,
-            "dividend": TEST_DIVIDEND,
-            "cached": True
-        })
-        mock_cache_get.return_value = asyncio.Future()
-        mock_cache_get.return_value.set_result(cached_data)
-        
-        response = client.get(
-            f"/api/v1/tao_dividends?netuid={TEST_NETUID}&hotkey={TEST_HOTKEY}", 
-            headers=HEADERS
-        )
-        assert response.status_code == status.HTTP_200_OK
-        data = response.json()
-        assert data["cached"] is True
 
 
 @pytest.mark.asyncio

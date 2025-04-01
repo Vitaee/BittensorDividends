@@ -1,0 +1,441 @@
+{
+	"info": {
+		"_postman_id": "628e5623-7202-49d5-88e1-6285929dee9c",
+		"name": "Bittensor TAO Dividends API",
+		"description": "A collection for interacting with the Bittensor TAO Dividends API which provides endpoints for querying TAO dividends and automated sentiment-based staking.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json",
+		"_exporter_id": "11558282"
+	},
+	"item": [
+		{
+			"name": "Health Check",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": "{{baseUrl}}/health/",
+				"description": "Check if the API is running correctly."
+			},
+			"response": [
+				{
+					"name": "Success",
+					"originalRequest": {
+						"method": "GET",
+						"header": [],
+						"url": "{{baseUrl}}/health/"
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "date",
+							"value": "Tue, 01 Apr 2025 18:09:57 GMT"
+						},
+						{
+							"key": "server",
+							"value": "uvicorn"
+						},
+						{
+							"key": "content-length",
+							"value": "120"
+						},
+						{
+							"key": "content-type",
+							"value": "application/json"
+						}
+					],
+					"cookie": [],
+					"body": "{\n    \"status\": \"ok\",\n    \"services\": {\n        \"database\": {\n            \"status\": \"ok\"\n        },\n        \"redis\": {\n            \"status\": \"ok\",\n            \"error\": null\n        },\n        \"bittensor\": {\n            \"status\": \"ok\"\n        }\n    }\n}"
+				}
+			]
+		},
+		{
+			"name": "Root",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": "{{baseUrl}}/",
+				"description": "Get the welcome message from the API."
+			},
+			"response": []
+		},
+		{
+			"name": "Get TAO Dividends",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "X-API-Key",
+						"value": "{{apiKey}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{baseUrl}}/api/v1/tao_dividends/?netuid={{netuid}}&hotkey={{hotkey}}&trade=false",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"tao_dividends",
+						""
+					],
+					"query": [
+						{
+							"key": "netuid",
+							"value": "{{netuid}}",
+							"description": "Subnet ID"
+						},
+						{
+							"key": "hotkey",
+							"value": "{{hotkey}}",
+							"description": "Account hotkey"
+						},
+						{
+							"key": "trade",
+							"value": "false",
+							"description": "Whether to trigger sentiment analysis and auto-staking"
+						}
+					]
+				},
+				"description": "Get Tao dividends for a subnet and hotkey. If netuid is omitted, returns data for all netuids. If hotkey is omitted, returns data for all hotkeys on the specified netuid."
+			},
+			"response": [
+				{
+					"name": "Success",
+					"originalRequest": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "X-API-Key",
+								"value": "{{apiKey}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/tao_dividends?netuid={{netuid}}&hotkey={{hotkey}}&trade=false",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"tao_dividends"
+							],
+							"query": [
+								{
+									"key": "netuid",
+									"value": "{{netuid}}",
+									"description": "Subnet ID"
+								},
+								{
+									"key": "hotkey",
+									"value": "{{hotkey}}",
+									"description": "Account hotkey"
+								},
+								{
+									"key": "trade",
+									"value": "false",
+									"description": "Whether to trigger sentiment analysis and auto-staking"
+								}
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "date",
+							"value": "Tue, 01 Apr 2025 13:48:38 GMT"
+						},
+						{
+							"key": "server",
+							"value": "uvicorn"
+						},
+						{
+							"key": "content-length",
+							"value": "135"
+						},
+						{
+							"key": "content-type",
+							"value": "application/json"
+						}
+					],
+					"cookie": [],
+					"body": "{\n    \"netuid\": 18,\n    \"hotkey\": \"5FFApaS75bv5pJHfAp2FVLBj9ZaXuFDjEypsaBNc1wCfe52v\",\n    \"dividend\": 19245637,\n    \"cached\": false,\n    \"stake_tx_triggered\": false\n}"
+				}
+			]
+		},
+		{
+			"name": "Get TAO Dividends with Sentiment Analysis",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "X-API-Key",
+						"value": "{{apiKey}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{baseUrl}}/api/v1/tao_dividends/?netuid={{netuid}}&hotkey={{hotkey}}&trade=true",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"tao_dividends",
+						""
+					],
+					"query": [
+						{
+							"key": "netuid",
+							"value": "{{netuid}}",
+							"description": "Subnet ID"
+						},
+						{
+							"key": "hotkey",
+							"value": "{{hotkey}}",
+							"description": "Account hotkey"
+						},
+						{
+							"key": "trade",
+							"value": "true",
+							"description": "Trigger sentiment analysis and auto-staking"
+						}
+					]
+				},
+				"description": "Get Tao dividends for a subnet and hotkey while also triggering sentiment analysis and automated staking/unstaking based on sentiment."
+			},
+			"response": [
+				{
+					"name": "Success",
+					"originalRequest": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "X-API-Key",
+								"value": "{{apiKey}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/tao_dividends?netuid={{netuid}}&hotkey={{hotkey}}&trade=true",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"tao_dividends"
+							],
+							"query": [
+								{
+									"key": "netuid",
+									"value": "{{netuid}}",
+									"description": "Subnet ID"
+								},
+								{
+									"key": "hotkey",
+									"value": "{{hotkey}}",
+									"description": "Account hotkey"
+								},
+								{
+									"key": "trade",
+									"value": "true",
+									"description": "Trigger sentiment analysis and auto-staking"
+								}
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "date",
+							"value": "Tue, 01 Apr 2025 14:54:05 GMT"
+						},
+						{
+							"key": "server",
+							"value": "uvicorn"
+						},
+						{
+							"key": "content-length",
+							"value": "134"
+						},
+						{
+							"key": "content-type",
+							"value": "application/json"
+						}
+					],
+					"cookie": [],
+					"body": "{\n    \"netuid\": 18,\n    \"hotkey\": \"5FFApaS75bv5pJHfAp2FVLBj9ZaXuFDjEypsaBNc1wCfe52v\",\n    \"dividend\": 19288808,\n    \"cached\": false,\n    \"stake_tx_triggered\": true\n}"
+				},
+				{
+					"name": "Wrong API Key",
+					"originalRequest": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "X-API-Key",
+								"value": "{{apiKey}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/tao_dividends?netuid={{netuid}}&hotkey={{hotkey}}&trade=true",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"tao_dividends"
+							],
+							"query": [
+								{
+									"key": "netuid",
+									"value": "{{netuid}}",
+									"description": "Subnet ID"
+								},
+								{
+									"key": "hotkey",
+									"value": "{{hotkey}}",
+									"description": "Account hotkey"
+								},
+								{
+									"key": "trade",
+									"value": "true",
+									"description": "Trigger sentiment analysis and auto-staking"
+								}
+							]
+						}
+					},
+					"status": "Unauthorized",
+					"code": 401,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "date",
+							"value": "Tue, 01 Apr 2025 14:54:49 GMT"
+						},
+						{
+							"key": "server",
+							"value": "uvicorn"
+						},
+						{
+							"key": "content-length",
+							"value": "39"
+						},
+						{
+							"key": "content-type",
+							"value": "application/json"
+						}
+					],
+					"cookie": [],
+					"body": "{\n    \"detail\": \"Invalid or missing API Key\"\n}"
+				}
+			]
+		},
+		{
+			"name": "Get TAO Dividends (Default Values)",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "X-API-Key",
+						"value": "{{apiKey}}",
+						"type": "text"
+					}
+				],
+				"url": "{{baseUrl}}/api/v1/tao_dividends/",
+				"description": "Get Tao dividends using default values for netuid and hotkey."
+			},
+			"response": [
+				{
+					"name": "Get TAO Dividends Sucess",
+					"originalRequest": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "X-API-Key",
+								"value": "{{apiKey}}",
+								"type": "text"
+							}
+						],
+						"url": "{{baseUrl}}/api/v1/tao_dividends"
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "date",
+							"value": "Tue, 01 Apr 2025 02:44:08 GMT"
+						},
+						{
+							"key": "server",
+							"value": "uvicorn"
+						},
+						{
+							"key": "content-length",
+							"value": "135"
+						},
+						{
+							"key": "content-type",
+							"value": "application/json"
+						}
+					],
+					"cookie": [],
+					"body": "{\n    \"netuid\": 18,\n    \"hotkey\": \"5FFApaS75bv5pJHfAp2FVLBj9ZaXuFDjEypsaBNc1wCfe52v\",\n    \"dividend\": 19828177,\n    \"cached\": false,\n    \"stake_tx_triggered\": false\n}"
+				}
+			]
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://localhost:8000",
+			"type": "string"
+		},
+		{
+			"key": "apiKey",
+			"value": "YourSecretApiKey",
+			"type": "string"
+		},
+		{
+			"key": "netuid",
+			"value": "18",
+			"type": "string"
+		},
+		{
+			"key": "hotkey",
+			"value": "5FFApaS75bv5pJHfAp2FVLBj9ZaXuFDjEypsaBNc1wCfe52v",
+			"type": "string"
+		}
+	]
+}
