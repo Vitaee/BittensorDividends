@@ -1,6 +1,9 @@
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from src.db.models import db, create_tables
+from src.services.redis_cache import cache
+from src.services.blockchain import bittensor_service
 
 
 @asynccontextmanager
@@ -9,7 +12,14 @@ async def lifespan(app: FastAPI):
     Lifespan context manager for FastAPI application.
     Handles startup and shutdown events for database, cache, and blockchain connections.
     """
+
+    await create_tables()
+
     yield 
+    
+    await cache.close()
+    await db.disconnect()
+    await bittensor_service.close()
 
 
 app = FastAPI(

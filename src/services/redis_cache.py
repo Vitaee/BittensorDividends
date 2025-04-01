@@ -1,6 +1,6 @@
 import redis.asyncio as redis
 from typing import Any, Optional, TypeVar
-from core.config import settings
+from src.core.config import settings
 
 
 T = TypeVar('T')

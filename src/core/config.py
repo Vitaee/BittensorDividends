@@ -27,11 +27,9 @@ class Settings(BaseSettings):
     CACHE_TTL: int = 120  # Cache TTL in seconds
 
     model_config = {
-        "env_file": "../.env",
+        "env_file": ".env",
         "case_sensitive": True
     }
 
 
 settings = Settings()
-print(f"Settings loaded: {settings}")
-print(f"Settings loaded: {settings.GROQ_API_KEY}")
