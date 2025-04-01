@@ -12,4 +12,4 @@ asyncpg==0.30.0
 pydantic-settings==2.8.1
 aiohttp
 groq
-bittensor==9.2.0
+# bittensor

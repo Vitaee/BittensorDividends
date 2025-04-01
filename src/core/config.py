@@ -8,6 +8,10 @@ class Settings(BaseSettings):
     CELERY_BROKER_URL: str = "redis://redis:6379/1"
     CELERY_RESULT_BACKEND: str = "redis://redis:6379/2"
     DATABASE_URL: str = ""
+    POSTGRES_DB: str = "postgres"
+    POSTGRES_USER: str = "postgres"
+    POSTGRES_PASSWORD: str = "postgres"
+    
     
     # Blockchain settings
     BITTENSOR_NETWORK: str ="testnet"

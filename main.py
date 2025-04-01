@@ -1,7 +1,8 @@
 from contextlib import asynccontextmanager
 from fastapi import FastAPI, Depends
 from fastapi.middleware.cors import CORSMiddleware
-from src.db.models import db, create_tables
+from src.db.models import create_tables
+from src.db.depends import db
 from src.services.redis_cache import cache
 from src.services.blockchain import bittensor_service
 from src.api.routes import dividends

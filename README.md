@@ -10,6 +10,7 @@ src/
 ├── core/                 # Authentication and security & App Config  & App Lifecycle Events
 ├── db/                   # Database models
 ├── services/             # Third Party Services
+├── schemas/              # API Pydantic Schemas
 ├── tests/                # API Unit Tests
 ├── celery_worker.py      # Celery background tasks
 

@@ -124,6 +124,7 @@ __pypackages__/
 celerybeat-schedule
 celerybeat.pid
 
+
 src/celerybeat-schedule
 src/celerybeat.pid
 src/celerybeat-schedule.lock
