@@ -1,5 +1,5 @@
 import json, bittensor
-from typing import Dict, List, Optional, Union, Any
+from typing import Dict, Optional
 from bittensor.core.async_subtensor import AsyncSubtensor
 from src.core.config import settings
 from src.services.redis_cache import cache
@@ -18,14 +18,14 @@ class BitensorService:
     async def _get_subtensor(self):
         """Get or initialize the async subtensor"""
         if self._subtensor is None:
-            logger.debug("Creating new AsyncSubtensor instance")
+            logger.info("Creating new AsyncSubtensor instance")
             self._subtensor = AsyncSubtensor() #network=settings.BITTENSOR_NETWORK)
         return self._subtensor
     
     async def _get_wallet(self):
         """Get or initialize the bittensor wallet"""
         if self._wallet is None:
-            logger.debug("Creating new wallet instance")
+            logger.info("Creating new wallet instance")
             
             self._wallet = bittensor.wallet(
                     name=settings.BITTENSOR_WALLET_NAME, 
@@ -34,7 +34,7 @@ class BitensorService:
             
             # If a seed phrase is provided, create wallet with it
             if hasattr(settings, 'WALLET_SEED_PHRASE') and settings.WALLET_SEED_PHRASE:
-                logger.debug("Creating wallet with mnemonic from configuration")
+                logger.info("Creating wallet with mnemonic from configuration")
                 self._wallet.regenerate_coldkey(mnemonic=settings.WALLET_SEED_PHRASE, 
                                                 overwrite=True, use_password=False)
                 
@@ -61,11 +61,15 @@ class BitensorService:
             # Generate cache key
             cache_key = cache.generate_key("tao_dividends", netuid, hotkey)
             
+            logger.info(f"Cache key for Tao dividends - {cache_key}")
+
             # Try to get from cache first
             cached_data = await cache.get(cache_key)
             if cached_data:
-                logger.debug(f"Retrieved cached dividend data for netuid: {netuid}, hotkey: {hotkey}")
-                return json.loads(cached_data)
+                logger.info(f"Retrieved cached dividend data for netuid: {netuid}, hotkey: {hotkey}")
+                result =  json.loads(cached_data)
+                result["cached"] = True
+                return result
             
             # Not in cache, query blockchain
             logger.info(f"Querying blockchain for Tao dividends - netuid: {netuid}, hotkey: {hotkey}")
@@ -90,7 +94,7 @@ class BitensorService:
             
             # Store in cache for 2 minutes
             await cache.set(cache_key, json.dumps(result), ttl=settings.CACHE_TTL)
-            logger.debug(f"Storing dividend data in cache - netuid: {netuid}, hotkey: {hotkey}")
+            logger.info(f"Storing dividend data in cache - netuid: {netuid}, hotkey: {hotkey}")
             
             return result
             
@@ -136,7 +140,7 @@ class BitensorService:
                 wallet=wallet,
                 netuid=netuid,
                 hotkey_ss58=hotkey,
-                amount=amount_balance,
+                amount=abs(amount_balance),
                 wait_for_inclusion=True,
                 wait_for_finalization=False
             )
@@ -186,7 +190,7 @@ class BitensorService:
                 wallet=wallet,
                 netuid=netuid,
                 hotkey_ss58=hotkey,
-                amount=amount_balance,
+                amount=abs(amount_balance),
                 wait_for_inclusion=True,
                 wait_for_finalization=False
             )

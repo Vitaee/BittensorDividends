@@ -1,8 +1,8 @@
 import aiohttp, re
 from typing import  List
 from groq import AsyncGroq
-from core.config import settings
-from core.logging import get_logger
+from src.core.config import settings
+from src.core.logging import get_logger
 
 
 logger = get_logger(__name__)
@@ -34,7 +34,7 @@ class SentimentAnalysisService:
         Returns:
             List of tweet texts
         """
-        logger.debug(f"Fetching tweets for netuid: {netuid}")
+        logger.info(f"Fetching tweets for netuid: {netuid}")
         
         # Datura API endpoint for Twitter search
         url = "https://apis.datura.ai/twitter"
@@ -67,7 +67,6 @@ class SentimentAnalysisService:
                     tweets  = [tweet["text"] for tweet in data]
                     
                     logger.info(f"Retrieved {len(tweets)} tweets for netuid {netuid}")
-                    print(f"Retrieved {len(tweets)} tweets for netuid {netuid}")
                     return tweets
                     
         except Exception as e:
@@ -146,8 +145,12 @@ class SentimentAnalysisService:
             Amount to stake (positive) or unstake (negative)
         """
         # Calculate stake amount as 0.01 TAO per sentiment point
+        if sentiment_score is None:
+            logger.error("Sentiment score is None, cannot calculate stake amount")
+            return 0
+        
         stake_amount = 0.01 * sentiment_score
-        logger.debug(f"Calculated stake amount for sentiment {sentiment_score}: {stake_amount}")
+        logger.info(f"Calculated stake amount for sentiment {sentiment_score}: {stake_amount}")
         return stake_amount
 
 
