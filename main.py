@@ -1,9 +1,11 @@
 from contextlib import asynccontextmanager
-from fastapi import FastAPI
+from fastapi import FastAPI, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from src.db.models import db, create_tables
 from src.services.redis_cache import cache
 from src.services.blockchain import bittensor_service
+from src.api.routes import dividends
+from src.core.security import get_api_key
 
 
 @asynccontextmanager
@@ -14,11 +16,14 @@ async def lifespan(app: FastAPI):
     """
 
     await create_tables()
+    if not db.is_connected:
+        await db.connect()
 
     yield 
     
+    if db.is_connected:
+        await db.disconnect()
     await cache.close()
-    await db.disconnect()
     await bittensor_service.close()
 
 
@@ -39,14 +44,69 @@ app.add_middleware(
 )
 
 
+app.include_router(
+    dividends.router,
+    prefix="/api/v1",
+    tags=["Dividends"],
+    dependencies=[Depends(get_api_key)]
+)
+
 
 @app.get("/")
 async def root():
     return {"message": "Welcome to Bittensor TAO Dividends API"}
 
-@app.get("/health")
+@app.get("/health/", tags=["Health Check"])
 async def health_check():
-    return {"status": "healthy"}
+    """
+    Comprehensive health check endpoint that verifies all services.
+    """
+    health_status = {
+        "status": "ok",
+        "services": {
+            "database": {"status": "unknown"},
+            "redis": {"status": "unknown"},
+            "bittensor": {"status": "unknown"}
+        }
+    }
+    
+    # Redis health
+    try:
+        redis_health, redis_error = await cache.health_check()
+        health_status["services"]["redis"] = {
+            "status": "ok" if redis_health else "error",
+            "error": redis_error if not redis_health else None
+        }
+        if not redis_health:
+            health_status["status"] = "degraded"
+    except Exception as e:
+        health_status["services"]["redis"] = {"status": "error", "error": str(e)}
+        health_status["status"] = "degraded"
+    
+    # DB health
+    try:
+        if db.is_connected:
+            health_status["services"]["database"] = {"status": "ok"}
+        else:
+            health_status["services"]["database"] = {"status": "error", "error": "Not connected"}
+            health_status["status"] = "degraded"
+    except Exception as e:
+        health_status["services"]["database"] = {"status": "error", "error": str(e)}
+        health_status["status"] = "degraded"
+    
+    # Bittensor service health
+    try:
+        subtensor = await bittensor_service._get_subtensor()
+        if subtensor:
+            health_status["services"]["bittensor"] = {"status": "ok"}
+        else:
+            health_status["services"]["bittensor"] = {"status": "error", "error": "Not initialized"}
+            health_status["status"] = "degraded"
+    except Exception as e:
+        health_status["services"]["bittensor"] = {"status": "error", "error": str(e)}
+        health_status["status"] = "degraded"
+    
+    return health_status
 
 
 if __name__ == "__main__":

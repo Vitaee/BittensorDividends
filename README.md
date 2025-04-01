@@ -19,3 +19,34 @@ docker-compose.yml        # Docker Compose configuration
 Dockerfile                # Docker image specification
 requirements.txt          # Python dependencies
 ```
+
+## Features
+
+- **Async Blockchain Queries**: FastAPI endpoints for querying TAO dividends with Redis caching
+- **Sentiment Analysis**: Analyzes Twitter sentiment about Bittensor subnets using Datura.ai and Chutes.ai
+- **Auto-Staking**: Automatically stakes or unstakes TAO based on sentiment scores
+- **Highly Concurrent**: Designed to handle ~1000 concurrent requests efficiently
+- **Containerized**: All components run in Docker containers for easy deployment
+
+## Architecture
+
+- **FastAPI**: Asynchronous API framework
+- **Redis**: Caching and Celery message broker
+- **Celery**: Background processing for sentiment analysis and staking
+- **PostgreSQL**: Persistent storage for transaction history
+- **AsyncSubtensor**: Asynchronous blockchain interactions
+
+
+### Running the Application
+First, create a venv: `python -m venv my-env`
+
+Then install the dependencies: `pip install -r requirements.txt`
+
+Then,
+```bash
+python main.py
+```
+and,
+```bash
+celery -A src.celery_worker.celery_app worker --loglevel=info --pool=threads
+```
