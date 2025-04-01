@@ -57,10 +57,10 @@ def stake_based_on_sentiment(netuid: int, hotkey: str):
             # Stake or unstake
             tx_hash = None
 
-            if stake_amount > 0 and stake_amount != 0:
+            if stake_amount > 0 and stake_amount != 0 and sentiment_score != 0:
                 logger.info(f"Positive sentiment ({sentiment_score}), staking {stake_amount} TAO")
                 tx_hash = await bittensor_service.stake(abs(stake_amount), netuid, hotkey)
-            elif stake_amount < 0 and stake_amount != 0:
+            elif stake_amount < 0 and stake_amount != 0 and sentiment_score != 0:
                 logger.info(f"Negative sentiment ({sentiment_score}), unstaking {abs(stake_amount)} TAO")
                 tx_hash = await bittensor_service.unstake(abs(stake_amount), netuid, hotkey)
             else:
