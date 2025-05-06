@@ -1,9 +1,5 @@
-# Take-Home Coding Task – Senior Python Backend Engineer
-
-**DO NOT COMMIT TO THIS REPO -- MAKE YOUR OWN REPO**
-
 ## Overall Design
-This project should implement an asynchronous API service that:
+This project implements an asynchronous API service that:
 
 1. Provides an authenticated FastAPI endpoint to query Tao dividends from the Bittensor blockchain
 2. Caches blockchain query results in Redis for 2 minutes
@@ -34,32 +30,6 @@ Overall goal: Implement an async API endpoint that returns blockchain data and o
 
 - **Authenticated API Endpoint**: Expose the data through a FastAPI endpoint (e.g. GET /api/v1/tao_dividends?netuid={id}&hotkey={address}&trade=false). Both netuid and hotkey parameters are optional - if netuid is omitted, returns data for all netuids and their hotkeys; if hotkey is omitted, returns data for all hotkeys on the specified netuid. The trade parameter is optional and defaults to false. Netuid and hotkey defaults are provided below. Protect this endpoint with authentication (such as a Bearer token or OAuth2) so only authorized clients can access it.
 
-- **Optional Stake Extrinsic & Sentiment-Based Adjustment**: When the endpoint is called with trade=true:
-
-  1. First, gather sentiment data:
-     - Using Datura.ai, search recent tweets for "Bittensor netuid {netuid}" to analyze subnet sentiment using this endpoint: https://docs.datura.ai/guides/capabilities/twitter-search or the sdk: https://docs.datura.ai/guides/daturaSdks/py-sdk#basic-twitter-search-method
-     - Feed tweets into Chutes.ai API for a llama LLM and prompt it to get a sentiment score (-100 to +100) from the tweets. https://chutes.ai/app/chute/20acffc0-0c5f-58e3-97af-21fc0b261ec4
-     - Handle this analysis asynchronously via Celery task
-
-  2. Then submit appropriate stake/unstake extrinsic based on sentiment:
-     - For positive sentiment: add_stake (of amount .01 tao * sentiment score)
-     - For negative sentiment: unstake (of amount .01 tao * sentiment score)
-     - Use default parameters in the extrinsic call if not specified in the API request:
-       - hotkey = "5FFApaS75bv5pJHfAp2FVLBj9ZaXuFDjEypsaBNc1wCfe52v"
-       - netuid = 18
-
-  3. Implementation details:
-     - Use Bittensor wallet (created via btwallet sdk: https://github.com/opentensor/btwallet)
-     - Submit extrinsics via AsyncSubtensor:
-       - add_stake: https://github.com/opentensor/bittensor/blob/d6ad9f869c583b95250d8b86ab32bac2465651b2/bittensor/core/async_subtensor.py#L2814
-       - unstake: https://github.com/opentensor/bittensor/blob/d6ad9f869c583b95250d8b86ab32bac2465651b2/bittensor/core/async_subtensor.py#L3670
-     - Use testnet for all operations
-     - Get testnet tokens by transferring up to 40 tao from wallet: "diamond like interest affair safe clarify lawsuit innocent beef van grief color"
-     - Can regenerate wallet using btcli: https://github.com/opentensor/btcli/blob/fe486075576e8c6bd1ed28783c7cfe893e340588/bittensor_cli/src/commands/wallets.py#L50
-     - Can transfer tokens using: https://github.com/opentensor/btcli/blob/fe486075576e8c6bd1ed28783c7cfe893e340588/bittensor_cli/src/commands/wallets.py#L1106
-     - Handle extrinsic responses asynchronously and log results
-     - Use Datura API KEY = 'dt_$q4qWC2K5mwT5BnNh0ZNF9MfeMDJenJ-pddsi_rE1FZ8'
-     - Use Chutes API KEY = 'cpk_9402c24cc755440b94f4b0931ebaa272.7a748b60e4a557f6957af9ce25778f49.8huXjHVlrSttzKuuY0yU2Fy4qEskr5J0'
 
 - **Integration**: This sentiment analysis process could be triggered automatically when the data endpoint is called with trade=true or perhaps as a separate background routine. For simplicity, you may execute the Twitter search and sentiment analysis within the same request flow (but asynchronously), or dispatch it as a background Celery task upon each API call. In either case, ensure the stake adjustment extrinsic is submitted without blocking the main API response (e.g., the API can return the TaoDividends data immediately, and perform the stake/unstake in background). Ensure everything is done asynchronously.
 
